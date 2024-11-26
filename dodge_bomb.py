@@ -19,13 +19,13 @@ os.chdir(os.path.dirname(os.path.abspath(__file__)))
 def gameover(screen: pg.Surface) -> None:
     x, y = WIDTH//2, HEIGHT//2
     black_sur = pg.Surface((WIDTH,HEIGHT)) 
-    black_sur.fill((0, 0, 0))
-    black_rct = black_sur.get_rect(center=(WIDTH//2, HEIGHT//2)) #背景用中央座標を取得
-    black_sur.set_alpha(128)# 黒画面を透けるように
+    black_sur.fill((0, 0, 0))#黒で塗りつぶす
+    black_rct = black_sur.get_rect(center=(WIDTH//2, HEIGHT//2)) #背景用座標を取得
+    black_sur.set_alpha(180)# 黒画面を透けるように
     screen.blit(black_sur,black_rct)
     fonto = pg.font.Font(None, 80) #文字サイズを80に設定
     txt = fonto.render("Game Over", True, (255, 255, 255))
-    txt_rct = txt.get_rect(center=(WIDTH // 2, HEIGHT // 2))#テキスト用中央座標
+    txt_rct = txt.get_rect(center=(WIDTH // 2, HEIGHT // 2))#テキスト用座標
     screen.blit(txt, txt_rct)
     kksad_img = pg.transform.rotozoom(pg.image.load("fig/8.png"),0, 2.0)#泣いているこうかとんを格納
     sad_x, sad_y = WIDTH//2, HEIGHT//2 #画面の中央座標を取得
@@ -60,11 +60,37 @@ def init_bb_imgs() -> tuple[list[pg.Surface], list[int]]:
     return size,accs
 
 
+def get_moved_image(move: tuple[int, int],kk_img: pg) -> pg.Surface:
+    """
+    引数で指定される移動量に対応する画像Surfaceを返す
+    """
+    kk_img2 = pg.transform.flip(kk_img, True, False)
+    # 移動量に基づき画像を回転する
+    if move == (0, -5):  # 上
+        return pg.transform.rotozoom(kk_img2, 90, 1.0) #上向き
+    elif move == (0, 5):  # 下
+        return pg.transform.rotozoom(kk_img2, -90, 1.0)  # 上下反転
+    elif move == (-5, 0):  # 左
+        return kk_img
+    elif move == (5, 0):  # 右
+        return kk_img2  # 右向き
+    elif move == (-5, -5):  # 左上
+        return pg.transform.rotozoom(kk_img, 45, 1.0)
+    elif move == (5, -5):  # 右上
+        return pg.transform.rotozoom(kk_img2, -45, 1.0)
+    elif move == (-5, 5):  # 左下
+        return pg.transform.rotozoom(kk_img, 135, 1.0)
+    elif move == (5, 5):  # 右下
+        return pg.transform.rotozoom(kk_img, -135, 1.0)
+    return kk_img  # 移動がない場合
+
+    
+
 def main():
     pg.display.set_caption("逃げろ！こうかとん")
     screen = pg.display.set_mode((WIDTH, HEIGHT))
     bg_img = pg.image.load("fig/pg_bg.jpg")    
-    kk_img = pg.transform.rotozoom(pg.image.load("fig/3.png"), 0, 2.0)
+    kk_img = pg.transform.rotozoom(pg.image.load("fig/3.png"), 0, 0.9)
     bb_imgs, bb_accs = init_bb_imgs()#加速度・サイズのリスト
 
     bb_img = pg.Surface((20, 20)) #爆弾用空Sur
@@ -91,8 +117,10 @@ def main():
         sum_mv = [0, 0]
         for key, taple in DELTA.items():
             if key_lst[key]:
+                kk_img = get_moved_image(taple)
                 sum_mv[0] += taple[0]
                 sum_mv[1] += taple[1]
+        
         
         bb_accs = [a for a in range(1, 11)] #爆弾加速度
         kk_rct.move_ip(sum_mv)
