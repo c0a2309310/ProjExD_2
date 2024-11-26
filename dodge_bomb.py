@@ -1,11 +1,12 @@
 import os
+import pygame as pg
 from random import randint
 import sys
-import pygame as pg
+import time
 
 
 
-WIDTH, HEIGHT = 1500, 900
+WIDTH, HEIGHT = 1100, 650
 DELTA = {
     pg.K_UP: (0, -5),
     pg.K_DOWN: (0, +5),
@@ -13,6 +14,26 @@ DELTA = {
     pg.K_RIGHT: (+5, 0)
 }
 os.chdir(os.path.dirname(os.path.abspath(__file__)))
+
+
+def gameover(screen: pg.Surface) -> None:
+    x, y = WIDTH//2, HEIGHT//2
+    black_sur = pg.Surface((WIDTH,HEIGHT)) 
+    black_sur.fill((0, 0, 0))
+    black_rct = black_sur.get_rect(center=(WIDTH//2, HEIGHT//2)) #背景用中央座標を取得
+    black_sur.set_alpha(180)# 黒画面を透けるように
+    screen.blit(black_sur,black_rct)
+    fonto = pg.font.Font(None, 80) #文字サイズを80に設定
+    txt = fonto.render("Game Over", True, (255, 255, 255))
+    txt_rct = txt.get_rect(center=(WIDTH // 2, HEIGHT // 2))#テキスト用中央座標
+    screen.blit(txt, txt_rct)
+    kksad_img = pg.transform.rotozoom(pg.image.load("fig/8.png"),0, 2.0)#泣いているこうかとんを格納
+    sad_x, sad_y = WIDTH//2, HEIGHT//2 #画面の中央座標を取得
+    screen.blit(kksad_img, (sad_x + 200, sad_y - 60)) #右側のこうかとんを表示
+    screen.blit(kksad_img, (sad_x - sad_x//2, sad_y - 60)) #左側のこうかとんを表示
+    pg.display.update()
+    time.sleep(5)
+
 
 
 def check_bound(rct: pg.rect) -> tuple[bool, bool]:
@@ -49,7 +70,8 @@ def main():
             if event.type == pg.QUIT: 
                 return
         if kk_rct.colliderect(bb_rct):
-            return # GameOver
+          gameover(screen)
+          return 
         screen.blit(bg_img, [0, 0]) 
 
         key_lst = pg.key.get_pressed()
