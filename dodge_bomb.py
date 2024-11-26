@@ -21,7 +21,7 @@ def gameover(screen: pg.Surface) -> None:
     black_sur = pg.Surface((WIDTH,HEIGHT)) 
     black_sur.fill((0, 0, 0))
     black_rct = black_sur.get_rect(center=(WIDTH//2, HEIGHT//2)) #背景用中央座標を取得
-    black_sur.set_alpha(180)# 黒画面を透けるように
+    black_sur.set_alpha(128)# 黒画面を透けるように
     screen.blit(black_sur,black_rct)
     fonto = pg.font.Font(None, 80) #文字サイズを80に設定
     txt = fonto.render("Game Over", True, (255, 255, 255))
@@ -49,12 +49,24 @@ def check_bound(rct: pg.rect) -> tuple[bool, bool]:
         tate = False
     return yoko,tate
 
+def init_bb_imgs() -> tuple[list[pg.Surface], list[int]]:
+    accs = [a for a in range(1,11)] 
+    size = [0 for i in range(1,11)]
+    for r in range(1,11):
+        bb_img = pg.Surface((20*r, 20*r))
+        pg.draw.circle(bb_img, (255, 0, 0), (10*r, 10*r), 10*r)
+        bb_img.set_colorkey((0, 0, 0))
+        size[r-1] = bb_img
+    return size,accs
+
 
 def main():
     pg.display.set_caption("逃げろ！こうかとん")
     screen = pg.display.set_mode((WIDTH, HEIGHT))
     bg_img = pg.image.load("fig/pg_bg.jpg")    
     kk_img = pg.transform.rotozoom(pg.image.load("fig/3.png"), 0, 2.0)
+    bb_imgs, bb_accs = init_bb_imgs()#加速度・サイズのリスト
+
     bb_img = pg.Surface((20, 20)) #爆弾用空Sur
     pg.draw.circle(bb_img, (255, 0, 0), (10, 10), 10) #爆弾円を描く
     bb_rct = bb_img.set_colorkey((0, 0, 0)) 
@@ -72,7 +84,8 @@ def main():
         if kk_rct.colliderect(bb_rct):
           gameover(screen)
           return 
-        screen.blit(bg_img, [0, 0]) 
+        screen.blit(bg_img, [0, 0])  
+        bb_img = bb_imgs[min(tmr//500, 9)]
 
         key_lst = pg.key.get_pressed()
         sum_mv = [0, 0]
@@ -81,6 +94,7 @@ def main():
                 sum_mv[0] += taple[0]
                 sum_mv[1] += taple[1]
         
+        bb_accs = [a for a in range(1, 11)] #爆弾加速度
         kk_rct.move_ip(sum_mv)
         #　画面外にこうかとんが出たら、元の場所に戻す
         if check_bound(kk_rct) != (True, True):
@@ -92,7 +106,10 @@ def main():
             vx *= -1
         if not tate:
             vy *= -1
-        bb_rct.move_ip(vx,vy)
+
+        avx = vx*bb_accs[min(tmr//500, 9)]
+
+        bb_rct.move_ip(avx,vy)
         screen.blit(bb_img, bb_rct)
         pg.display.update()
         tmr += 1
