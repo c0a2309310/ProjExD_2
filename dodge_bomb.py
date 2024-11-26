@@ -5,7 +5,6 @@ import time
 import pygame as pg
 
 
-
 WIDTH, HEIGHT = 1100, 650
 DELTA = {
     pg.K_UP: (0, -5),
@@ -40,7 +39,6 @@ def gameover(screen: pg.Surface) -> None:
     time.sleep(5)
 
 
-
 def check_bound(rct: pg.rect) -> tuple[bool, bool]:
     """
     引数で与えられたRectの画面内外を判定する
@@ -53,6 +51,7 @@ def check_bound(rct: pg.rect) -> tuple[bool, bool]:
     if rct.top < 0 or rct.bottom > HEIGHT:
         tate = False
     return yoko,tate
+
 
 def init_bb_imgs() -> tuple[list[pg.Surface], list[int]]:
     """
@@ -92,7 +91,6 @@ def get_moved_image(move: tuple[int, int],kk_img: pg) -> pg.Surface:
     elif move == (5, 5):  # 右下
         return pg.transform.rotozoom(kk_img, -135, 1.0)
     return kk_img  # 移動がない場合
-
     
 
 def main():
@@ -121,7 +119,6 @@ def main():
           return 
         screen.blit(bg_img, [0, 0])  
         bb_img = bb_imgs[min(tmr//500, 9)]
-
         key_lst = pg.key.get_pressed()
         sum_mv = [0, 0]
         for key, taple in DELTA.items():
@@ -129,8 +126,6 @@ def main():
                 kk_img = get_moved_image(taple)
                 sum_mv[0] += taple[0]
                 sum_mv[1] += taple[1]
-        
-        
         bb_accs = [a for a in range(1, 11)] #爆弾加速度
         kk_rct.move_ip(sum_mv)
         #　画面外にこうかとんが出たら、元の場所に戻す
@@ -143,9 +138,7 @@ def main():
             vx *= -1
         if not tate:
             vy *= -1
-
         avx = vx*bb_accs[min(tmr//500, 9)]
-
         bb_rct.move_ip(avx,vy)
         screen.blit(bb_img, bb_rct)
         pg.display.update()
