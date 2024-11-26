@@ -1,8 +1,8 @@
 import os
-import pygame as pg
 from random import randint
 import sys
 import time
+import pygame as pg
 
 
 
@@ -17,6 +17,11 @@ os.chdir(os.path.dirname(os.path.abspath(__file__)))
 
 
 def gameover(screen: pg.Surface) -> None:
+    """
+    画面を半透明の黒で塗りつぶし「Game Over」を表示する
+    Game Over の両隣に泣き顔こうかとんを表示する
+    引数:screen(pg.Surface)ゲームウィンドウのSurfaceオブジェクト
+    """
     x, y = WIDTH//2, HEIGHT//2
     black_sur = pg.Surface((WIDTH,HEIGHT)) 
     black_sur.fill((0, 0, 0))#黒で塗りつぶす
@@ -50,6 +55,10 @@ def check_bound(rct: pg.rect) -> tuple[bool, bool]:
     return yoko,tate
 
 def init_bb_imgs() -> tuple[list[pg.Surface], list[int]]:
+    """
+    爆弾の速度とサイズを変更するためのリストを作成する
+    戻り値:tuple 爆弾画像リストと加速度リスト
+    """
     accs = [a for a in range(1,11)] 
     size = [0 for i in range(1,11)]
     for r in range(1,11):
