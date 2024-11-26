@@ -1,9 +1,11 @@
 import os
+from random import randint
 import sys
 import pygame as pg
 
 
-WIDTH, HEIGHT = 1600, 900
+
+WIDTH, HEIGHT = 1000, 900
 DELTA = {
     pg.K_UP: (0, -5),
     pg.K_DOWN: (0, +5),
@@ -18,8 +20,14 @@ def main():
     screen = pg.display.set_mode((WIDTH, HEIGHT))
     bg_img = pg.image.load("fig/pg_bg.jpg")    
     kk_img = pg.transform.rotozoom(pg.image.load("fig/3.png"), 0, 2.0)
+    kk_rct.center = 300,200
+    bb_img = pg.Surface((20, 20)) #爆弾用空Sur
+    pg.draw.circle(bb_img, (255, 0, 0), (10, 10), 10) #爆弾円を描く
+    bb_rct = bb_img.set_colorkey((0, 0, 0)) 
+    bb_rct = bb_img.get_rect() #爆弾Rect抽出
+    bb_rct.center = randint(0, WIDTH), randint(0, HEIGHT)
     kk_rct = kk_img.get_rect()
-    kk_rct.center = 900, 400
+    vx, vy = 5, 5
     clock = pg.time.Clock()
     tmr = 0
     while True:
@@ -37,6 +45,8 @@ def main():
         
         kk_rct.move_ip(sum_mv)
         screen.blit(kk_img, kk_rct)
+        bb_rct.move_ip(vx,vy)
+        screen.blit(bb_img, bb_rct)
         pg.display.update()
         tmr += 1
         clock.tick(50)
